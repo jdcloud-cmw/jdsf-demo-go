@@ -1,0 +1,18 @@
+consul:
+  scheme: http
+  address: 10.12.209.43
+  port: 8500
+  discover:
+    enable: true
+    instanceId: go-consul-demo-1
+    checkUrl: /api/health/check
+trace:
+  enable: true
+  simpleType: const
+  simpleRate: 1
+  traceHttpAddress: 10.12.140.173
+  traceHttpPort: 14268
+app:
+  appName: go-consul-demo
+  hostIp: 10.12.140.173
+  serverPort: 19200
