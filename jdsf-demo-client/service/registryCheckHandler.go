@@ -25,8 +25,6 @@ func RegistryCheck(w http.ResponseWriter, r *http.Request) {
 	}
 
 	client := &http.Client{Transport: &jdsfapi.Transport{}}
-	t2 := opentracing.GlobalTracer()
-	fmt.Println(t2)
 	resp, err := client.Do(req)
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
