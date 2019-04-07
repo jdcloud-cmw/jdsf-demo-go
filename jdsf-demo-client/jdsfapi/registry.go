@@ -2,7 +2,10 @@ package jdsfapi
 
 import (
 	"fmt"
+	"github.com/apex/log"
+	"github.com/google/uuid"
 	"github.com/hashicorp/consul/api"
+	"github.com/jdcloud-cmw/jdsf-demo-go/jdsf-demo-client/jdsfapi/util"
 	"math/rand"
 	"net/url"
 	"os"
@@ -20,6 +23,7 @@ type RegistryClient struct {
 	Port int
 	Scheme string
 	Client  *api.Client
+	ServiceCache map[string][]*api.ServiceEntry
 }
 
 var(
@@ -55,7 +59,9 @@ func NewRegistryClient() *RegistryClient {
 	return registryClient
 }
 
+func (r *RegistryClient)serviceInfoTTL()  {
 
+}
 
 func (r *RegistryClient)GetConsulClient() *api.Client  {
 	if r.Client != nil {
@@ -106,7 +112,16 @@ func (r *RegistryClient)RegistryService()  {
 	}
 }
 
-func (r *RegistryClient)ServiceRequestLoadBlance(rawURL string) string {
+
+
+func (r *RegistryClient)ServiceRegistryCheck(serviceName string)  {
+
+}
+
+func (r *RegistryClient)ServiceRequestLoadBalance(rawURL string) string {
+	if r.ServiceCache == nil{
+		r.ServiceCache = make(map[string][]*api.ServiceEntry)
+	}
 	reqURL, err := url.Parse(rawURL)
 	if err != nil {
 		fmt.Println(err)
@@ -119,7 +134,21 @@ func (r *RegistryClient)ServiceRequestLoadBlance(rawURL string) string {
 
 	if len(serviceNameAndPortArray) > 0 {
 		serviceName = serviceNameAndPortArray[0]
+		if r.ServiceCache[serviceName]!=nil  && len(r.ServiceCache[serviceName])>0{
+			var index = 0
+			indexUUID,uuidErr :=	uuid.NewUUID()
+			if uuidErr!= nil{
+				log.Errorf("get uuid index error",uuidErr)
+			}
+			hashCodeInt := util.HashCode(indexUUID.String())
+			index = hashCodeInt % len(r.ServiceCache[serviceName])
+			service := r.ServiceCache[serviceName][index]
+			requestFinalHost := service.Service.Address + ":" + strconv.Itoa(service.Service.Port)
+			reqURL.Host = requestFinalHost
+			return reqURL.String()
+		}
 	}
+
 
 	isMatch, err := regexp.MatchString("((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))", serviceName)
 	if isMatch {

@@ -40,7 +40,6 @@ func NewJDSFConfig() *JDSFConfig {
 
 type ConsulConfig struct {
 	Scheme string `yaml:"scheme"`
-	Address string `yaml:"address"`
 	Port    int32 `yaml:"port"`
 	Discover *ConsulDiscover `yaml:"discover"`
 }
@@ -49,6 +48,8 @@ type ConsulDiscover struct {
 	Enable bool `yaml:"enable"`
 	ServiceInstanceId string `yaml:"instanceId"`
 	CheckUrl string `yaml:"checkUrl"`
+	InstanceZone string `yaml:"instanceZone"`
+	ServiceTTLTime int `yaml:"serviceTTLTime"`
 }
 
 

@@ -3,20 +3,12 @@ package sling
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
-	"github.com/hashicorp/consul/api"
+	goquery "github.com/google/go-querystring/query"
 	"github.com/jdcloud-cmw/jdsf-demo-go/jdsf-demo-client/jdsfapi"
 	"github.com/opentracing/opentracing-go"
 	"io"
-	"math/rand"
 	"net/http"
 	"net/url"
-	"regexp"
-	"strconv"
-	"strings"
-	"time"
-
-	goquery "github.com/google/go-querystring/query"
 )
 
 // NOTE: this is from github github.com/dghubble/sling  thanks for dghubble
@@ -306,7 +298,7 @@ func (s *Sling) BodyForm(bodyForm interface{}) *Sling {
 // Returns any errors parsing the rawURL, encoding query structs, encoding
 // the body, or creating the http.Request.
 func (s *Sling) Request() (*http.Request, error) {
-	reqURL, err := url.Parse(s.ServiceRequestLoadBlance())
+	reqURL, err := url.Parse(s.ServiceRequestLoadBalance())
 	if err != nil {
 		return nil, err
 	}
@@ -348,52 +340,13 @@ func (s *Sling) Request() (*http.Request, error) {
 	return req, err
 }
 
-
-
-
-func (s *Sling) ServiceRequestLoadBlance() string {
-	reqURL, err := url.Parse(s.rawURL)
-	if err != nil {
-		fmt.Println(err)
+func (s *Sling) ServiceRequestLoadBalance() string {
+	if jdsfapi.JDSFGlobalConfig != nil && jdsfapi.JDSFGlobalConfig.Consul.Discover.Enable{
+		return jdsfapi.JDSFRegistryClient.ServiceRequestLoadBalance(s.rawURL)
+	}else{
 		return s.rawURL
 	}
-	serviceName := ""
-	serviceNameAndPort := reqURL.Host
 
-	serviceNameAndPortArray := strings.Split(serviceNameAndPort, ":")
-
-	if len(serviceNameAndPortArray) > 0 {
-		serviceName = serviceNameAndPortArray[0]
-	}
-
-	isMatch, err := regexp.MatchString("((?:(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d)\\.){3}(?:25[0-5]|2[0-4]\\d|[01]?\\d?\\d))", serviceName)
-	if isMatch {
-		return s.rawURL
-	}
-	client := jdsfapi.JDSFRegistryClient.GetConsulClient()
-	serviceEntry, _, err := client.Health().Service(serviceName, "", true, nil)
-	if err != nil {
-		return s.rawURL
-	}
-	if len(serviceEntry) == 0 {
-		fmt.Println("not found service name is ", serviceName)
-		return s.rawURL
-	}
-	service := new(api.ServiceEntry)
-	if len(serviceEntry) > 0 {
-		rand.Seed(time.Now().UnixNano())
-		serviceInstanceCount := len(serviceEntry)
-		serviceIndex := rand.Intn(serviceInstanceCount)
-		service = serviceEntry[serviceIndex]
-
-	}
-	if service.Service != nil {
-		requestFinalHost := service.Service.Address + ":" + strconv.Itoa(service.Service.Port)
-		reqURL.Host = requestFinalHost
-
-		return reqURL.String()
-	}
-	return s.rawURL
 }
 
 
