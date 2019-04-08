@@ -29,6 +29,10 @@ func RegistryCheck(w http.ResponseWriter, r *http.Request) {
 
 	client := &http.Client{Transport: &jdsfapi.Transport{}}
 	resp, err := client.Do(req)
+	if err != nil{
+		writeJsonResponse(w, http.StatusInternalServerError,   []byte("Internal Server Error"))
+		return
+	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

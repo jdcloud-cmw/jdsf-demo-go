@@ -16,8 +16,10 @@ func HealthCheck(w http.ResponseWriter, r *http.Request)  {
 }
 
 func writeJsonResponse(w http.ResponseWriter, status int, data []byte) {
-	w.Header().Set("Content-Type", "application/json;charset=utf-8")
-	w.Header().Set("Content-Length", strconv.Itoa(len(data)))
+	if data!=nil{
+		w.Header().Set("Content-Type", "application/json;charset=utf-8")
+		w.Header().Set("Content-Length", strconv.Itoa(len(data)))
+	}
 	w.WriteHeader(status)
 	w.Write(data)
 }

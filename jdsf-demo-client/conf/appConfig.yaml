@@ -14,5 +14,5 @@ trace:
   traceHttpPort: 14268
 app:
   appName: go-consul-demo
-  hostIp: 10.12.140.173
+  #hostIp: 10.12.140.173
   serverPort: 19200
