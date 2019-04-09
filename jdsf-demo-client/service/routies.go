@@ -22,7 +22,7 @@ var routes = Routies{
 	Route{
 		"RegistryCheck",
 		"GET",
-		"/api/registry",
+		"/",
 		RegistryCheck,
 	},
 }

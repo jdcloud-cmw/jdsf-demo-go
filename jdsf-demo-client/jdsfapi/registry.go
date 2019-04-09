@@ -157,7 +157,7 @@ func (r *RegistryClient)GetConsulClient() *api.Client  {
 
 func (r *RegistryClient)RegistryService()  {
 	appConfig :=JDSFGlobalConfig.AppConfig
-	ConsulDiscoverConfig := JDSFGlobalConfig.Consul.Discover
+	consulDiscoverConfig := JDSFGlobalConfig.Consul.Discover
 	portStr :=  strconv.Itoa(int(appConfig.ServerPort))
 	client :=  r.Client
 	if client == nil{
@@ -168,15 +168,20 @@ func (r *RegistryClient)RegistryService()  {
 	agentService.Address = appConfig.HostIp
 	agentService.Kind = ""
 	agentService.Name = appConfig.AppName
-	agentService.ID = ConsulDiscoverConfig.ServiceInstanceId
+	agentService.ID = consulDiscoverConfig.ServiceInstanceId
 
 	agentCheck :=new(api.AgentServiceCheck)
 	agentCheck.Name =  appConfig.AppName
-	agentCheck.CheckID = ConsulDiscoverConfig.ServiceInstanceId
-	agentCheck.HTTP = "http://"+appConfig.HostIp+":"+portStr+ConsulDiscoverConfig.CheckUrl
+	agentCheck.CheckID = consulDiscoverConfig.ServiceInstanceId
+	agentCheck.HTTP = "http://"+appConfig.HostIp+":"+portStr+consulDiscoverConfig.CheckUrl
 	agentCheck.Method = "GET"
 	agentCheck.Interval= "30s"
 	agentService.Check = agentCheck
+	if consulDiscoverConfig.Zone!=""{
+		registryMateData := make(map[string]string)
+		registryMateData["zone"]=consulDiscoverConfig.Zone
+		agentService.Meta = registryMateData
+	}
 	regErr:=client.Agent().ServiceRegister(agentService)
 	if regErr!=nil{
 		fmt.Println(regErr)
@@ -258,11 +263,24 @@ func (r *RegistryClient)ServiceRequestLoadBalance(rawURL string) string {
 
 	service := new(api.ServiceEntry)
 	if len(serviceEntry) > 0 {
+		if JDSFGlobalConfig.Consul.Discover.Zone!=""{
+			var zoneService []*api.ServiceEntry
+			for index,item := range serviceEntry{
+				itemValue,ok :=item.Service.Meta["zone"]
+				if ok{
+					if itemValue == JDSFGlobalConfig.Consul.Discover.Zone{
+						zoneService  = append(zoneService, serviceEntry[index])
+					}
+				}
+				if zoneService !=nil && len(zoneService) >0{
+					serviceEntry = zoneService
+				}
+			}
+		}
 		rand.Seed(time.Now().UnixNano())
 		serviceInstanceCount := len(serviceEntry)
 		serviceIndex := rand.Intn(serviceInstanceCount)
 		service = serviceEntry[serviceIndex]
-
 	}
 	if service.Service != nil {
 		requestFinalHost := service.Service.Address + ":" + strconv.Itoa(service.Service.Port)

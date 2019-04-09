@@ -7,6 +7,7 @@ import (
 	"github.com/jdcloud-cmw/jdsf-demo-go/jdsf-demo-client/jdsfapi/util"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -14,7 +15,7 @@ import (
 var(
 	JDSFGlobalConfig *JDSFConfig
 )
-
+const 	instanceZone  ="ECS_ZONE"
 
 
 
@@ -49,6 +50,9 @@ func NewJDSFConfig() *JDSFConfig {
 	consulDiscover.Enable=false
 	consulDiscover.CheckUrl = "/api/health/check"
 	consulConfig.Discover = consulDiscover
+	consulConfigServer :=new(ConsulConfigServer)
+	consulConfigServer.Enable =false
+	consulConfig.Config = consulConfigServer
 	traceConfig :=new(TraceConfig)
 	traceConfig.Enable = false
 	jdsfConfig :=new(JDSFConfig)
@@ -71,6 +75,7 @@ type ConsulDiscover struct {
 	CheckUrl string `yaml:"checkUrl"`			//健康检查 url
 	InstanceZone string `yaml:"instanceZone"`  // 服务所在的可用区
 	ServiceTTLTime int `yaml:"serviceTTLTime"` // 自动更新服务实例缓存列表时间
+	Zone string `yaml:"zone"`					//所在数据中心 mate 信息
 }
 
 type ConsulConfigServer  struct{
@@ -118,7 +123,7 @@ func (j *JDSFConfig)LoadConfig(configFilePath string) *JDSFConfig  {
 		if appConfig.Consul.Scheme !=""{
 			j.Consul.Scheme = appConfig.Consul.Scheme
 		}
-		if appConfig.Consul.Config.Enable{
+		if appConfig.Consul.Config !=nil && appConfig.Consul.Config.Enable{
 			defaultConfig := api.DefaultConfig()
 			consulPortStr := strconv.Itoa(int( appConfig.Consul.Port))
 			defaultConfig.Address = appConfig.Consul.Address+":"+consulPortStr
@@ -161,6 +166,11 @@ func (j *JDSFConfig)LoadConfig(configFilePath string) *JDSFConfig  {
 					 instanceUUID := strings.Replace(uuid.New().String(),"-","",-1)
 					j.Consul.Discover.ServiceInstanceId = j.AppConfig.AppName+"-"+strconv.Itoa(int(j.AppConfig.ServerPort))+instanceUUID
 				}
+			}
+			if appConfig.Consul.Discover.Zone != ""{
+				j.Consul.Discover.Zone = appConfig.Consul.Discover.Zone
+			}else if os.Getenv(instanceZone) != ""{
+				j.Consul.Discover.Zone = os.Getenv(instanceZone)
 			}
 		}
 	}
