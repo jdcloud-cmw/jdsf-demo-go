@@ -6,9 +6,9 @@
 
 ## 环境准备
 
-* 安装GoLang SDK,开发使用的是 `go1.10.4` 配置好`GOPATH` `GOROOT` 等相应的环境变量。
+* 安装GoLang SDK,配置好环境变量,如果需要使用 go mod 请安装大于等于 `1.11`版本的 golang 安装包，推荐使用`1.12` ,如果使用老版本请配置好`GOPATH` `GOROOT` 等相应的环境变量。
 
-* 从此github 仓库 clone 代码 放到 `$GOPATH/github.com/jdcloud-cmw/` 下
+* 从此github 仓库 clone 代码，如使用不支持 go mod 的版本请将代码放到 `$GOPATH/github.com/jdcloud-cmw/` 下
 
 * 安装自己喜欢的IDE 或者 vim 进行代码编辑
 
