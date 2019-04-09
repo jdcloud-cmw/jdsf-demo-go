@@ -16,9 +16,11 @@
 
 |- jdsf-demo-client  
 |- jdsf-demo-server  
+|= image  
 |- README.md  
 其中jdsf-demo-client为服务的消费者  
 jdsf-demo-server 为服无的生产者  
+image  文档依赖的图片  
 README.md 为此文件
 在 项目中 jdsfapi 为进行负载调用以及调用链注册的相关代码，[sling](https://github.com/dghubble/sling) 为 github上的开源项目，本项目在 sling 的基础上进行了扩展，所以直接引用了代码。  
 项目中的 conf 文件夹存放了项目的配置  
@@ -66,6 +68,15 @@ app:
 
 * 在运行前使用 执行上面 的依赖包引用
 
-* 需要事先启动好 jaeger 服务 和 consul 服务。
+* 需要在[京东云](https://www.jdcloud.com)上开通[分布式服务框架](https://jdsf-console.jdcloud.com/clusterList),目前该中间件服务处于内侧阶段，申请开通服务请[点击此处](https://www.jdcloud.com/cn/products/jd-distributed-service-framework) 进入分布式服务框架文档页面，点击申请公测按钮进入页面填写信息，进行公测申请。申请以后请按照[分布式服务框架产品文档](https://docs.jdcloud.com/cn/jd-distributed-service-framework/product-overview)分别创建注册中心和调用链分析服务。然后在创建注册中心列表页面点击集群信息，获取注册中心节点地址的地址配置在配置在 demo 的配置文件中的  `consul`->`address` 配置项   ![注册中心详情](./image/registrydetail.jpg "注册中心详情")
+  在调用链分析服务列表页面点击创建的服务名称，进入详细信息页面，然后在页面获取Http 服务地址配置在 demo 的配置文件中的 `trace`->`traceHttpAddress` 属性上， 注意不要写端口号  ![调用链分析服务详情](./image/tracedetail.png "调用链分析服务详情")
 
-* 在文件夹下执行   `go run main.go` 或者 执行 `go build` 后执行生成的可执行文件
+* 在文件夹下执行   `go run main.go` 或者 执行 `go build` 后执行生成的可执行文件，然后上传到您在京东云购买的和注册中心服务还有调用链分析服务在同一 `VPC` 的云主机上启动并运行
+
+* 在服务server 和 client 启动成功以后再您部署服务的云主机上使用如下命令
+
+```shell
+ curl http://localhost:19200/?gameid=123
+ ```
+
+调用响应的测试接口然后在调用链分析服务的`依赖图谱` 页面可以看到响应的调用依赖信息，具体的操作请参考[分布式服务框架产品文档](https://docs.jdcloud.com/cn/jd-distributed-service-framework/product-overview)
