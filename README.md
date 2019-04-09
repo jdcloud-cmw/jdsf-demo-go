@@ -71,7 +71,7 @@ app:
 * 需要在[京东云](https://www.jdcloud.com)上开通[分布式服务框架](https://www.jdcloud.com/cn/products/jd-distributed-service-framework),目前该中间件服务处于内侧阶段，申请开通服务请[点击此处](https://www.jdcloud.com/cn/public/testApply/jdsf) 进入申请公测页面填写响应的信息，进行公测申请。申请通过以后请按照[分布式服务框架产品文档](https://docs.jdcloud.com/cn/jd-distributed-service-framework/product-overview)介绍分别创建注册中心和调用链分析服务。然后在创建注册中心列表页面点击集群信息，获取注册中心节点地址的地址配置在配置在 demo 的配置文件中的  `consul`->`address` 配置项   ![注册中心详情](./image/registrydetail.jpg "注册中心详情")
   在调用链分析服务列表页面点击创建的服务名称，进入详细信息页面，然后在页面获取Http 服务地址配置在 demo 的配置文件中的 `trace`->`traceHttpAddress` 属性上， 注意不要写端口号  ![调用链分析服务详情](./image/tracedetail.png "调用链分析服务详情")
 
-* 在文件夹下执行   `go run main.go` 或者 执行 `go build` 后执行生成的可执行文件，然后上传到您在京东云购买的和注册中心服务还有调用链分析服务在同一 `VPC` 的云主机上启动并运行
+* 在文件夹下执行 `go build` 后执行生成的可执行文件（如您使用 windows 或者 mac 而购买的云主机为 linux 操作系统请使用 `GOOS=linux GOARCH=amd64 go build` 进行编译），然后上传到您在京东云购买的和注册中心服务还有调用链分析服务在同一 `VPC` 的云主机上启动并运行
 
 * 在服务server 和 client 启动成功以后再您部署服务的云主机上使用如下命令
 
