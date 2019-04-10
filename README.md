@@ -16,7 +16,7 @@
 
 |- jdsf-demo-client  
 |- jdsf-demo-server  
-|= image  
+|- image  
 |- README.md  
 其中jdsf-demo-client为服务的消费者  
 jdsf-demo-server 为服无的生产者  
@@ -66,17 +66,44 @@ app:
 
 ## 代码运行及调试
 
-* 在运行前使用 执行上面 的依赖包引用
+### STEP1：在京东云上 [开通](https://www.jdcloud.com/cn/public/testApply/jdsf) 京东云分布式服务框架产品的使用权限
 
-* 需要在[京东云](https://www.jdcloud.com)上开通[分布式服务框架](https://www.jdcloud.com/cn/products/jd-distributed-service-framework),目前该中间件服务处于内侧阶段，申请开通服务请[点击此处](https://www.jdcloud.com/cn/public/testApply/jdsf) 进入申请公测页面填写响应的信息，进行公测申请。申请通过以后请按照[分布式服务框架产品文档](https://docs.jdcloud.com/cn/jd-distributed-service-framework/product-overview)介绍分别创建注册中心和调用链分析服务。然后在创建注册中心列表页面点击集群信息，获取注册中心节点地址的地址配置在配置在 demo 的配置文件中的  `consul`->`address` 配置项   ![注册中心详情](./image/registrydetail.jpg "注册中心详情")
-  在调用链分析服务列表页面点击创建的服务名称，进入详细信息页面，然后在页面获取Http 服务地址配置在 demo 的配置文件中的 `trace`->`traceHttpAddress` 属性上， 注意不要写端口号  ![调用链分析服务详情](./image/tracedetail.png "调用链分析服务详情")
+* 当前产品处于公测状态，免费使用。公测版本即是正式稳定的服务版本，用户不必担心稳定性与安全性问题，请放心试用。公测期结束后，产品将按实例的规格付费，并且用户不必重新开通新服务或切换服务
 
-* 在文件夹下执行 `go build` 后执行生成的可执行文件（如您使用 windows 或者 mac 而购买的云主机为 linux 操作系统请使用 `GOOS=linux GOARCH=amd64 go build` 进行编译），然后上传到您在京东云购买的和注册中心服务还有调用链分析服务在同一 `VPC` 的云主机上启动并运行
+### STEP2：创建注册中心、创建调用链服务
 
-* 在服务server 和 client 启动成功以后再您部署服务的云主机上使用如下命令
+* 创建流程参考 [京东云分布式服务框架产品文档](https://docs.jdcloud.com/cn/jd-distributed-service-framework/product-overview)
+
+
+### STEP3：在配置文件配置注册中心地址
+
+* 在创建注册中心列表页面点击集群信息，获取注册中心节点地址，如下图所示: ![注册中心详情](./image/registrydetail.jpg "注册中心详情")
+
+* 将获取的注册中心节点地址配置在 demo 的配置文件中的  `consul`->`address` 配置项，jdsf-demo-client 和 jdsf-demo-server 都需要配置
+
+### STEP4：配置调用链的服务地址
+
+* 在调用链分析服务列表页面中，点击创建的服务名称，进入详细信息页面，在调用链地址获取协议为Http的地址，如下图所示：![调用链分析服务详情](./image/tracedetail.png "调用链分析服务详情")
+
+* 将获取的Http协议地址配置在demo 的配置文件中的  `trace`->`traceHttpAddress` 配置项，jdsf-demo-client 和 jdsf-demo-server 都需要配置
+
+### STEP5：获取项目的相关依赖编译原代码
+
+* 在jdsf-demo-client 和 jdsf-demo-server 项目中获取相关依赖，详情请查看[项目依赖类库说明](#项目依赖类库说明)
+* jdsf-demo-client 和 jdsf-demo-server 文件夹下执行 `go build` 后执行生成响应的可执行文件（如您使用 windows 或者 mac 而购买的云主机为 linux 操作系统请使用 `GOOS=linux GOARCH=amd64 go build` 进行编译）
+
+### STEP6：上传 demo 项目的可执行文件和配置文件到云主机
+
+* 然后，将编译生成的`jdsf-demo-client` 和`jdsf-demo-server`可执行文件 还有对应项目下的 conf 文件夹上传到您在京东云购买的云主机上。（注意，目前仅支持注册中心服务、调用链分析服务、云主机在同一VPC内）
+
+* 启动 `jdsf-demo-server` 和 `jdsf-demo-client` 两个项目
+
+### STEP7：验证部署结果
+
+* 在服务`jdsf-demo-server`和 `jdsf-demo-client` 启动成功以后，再到您部署服务的云主机上，使用如下命令调用测试接口：
 
 ```shell
  curl http://localhost:19200/?gameid=123
  ```
 
-调用响应的测试接口然后在调用链分析服务的`依赖图谱` 页面可以看到响应的调用依赖信息，具体的操作请参考[分布式服务框架产品文档](https://docs.jdcloud.com/cn/jd-distributed-service-framework/product-overview)
+* 然后，在调用链分析服务页中的`依赖图谱` 中，您将可以看到响应的调用依赖信息，具体的操作请参考[京东云分布式服务框架产品文档](https://docs.jdcloud.com/cn/jd-distributed-service-framework/product-overview)
