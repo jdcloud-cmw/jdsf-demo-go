@@ -87,7 +87,7 @@ app:
 
 * 将获取的Http协议地址配置在demo 的配置文件中的  `trace`->`traceHttpAddress` 配置项，jdsf-demo-client 和 jdsf-demo-server 都需要配置
 
-### STEP5：获取项目的相关依赖编译原代码
+### STEP5：获取项目的相关依赖编译源代码
 
 * 在jdsf-demo-client 和 jdsf-demo-server 项目中获取相关依赖，详情请查看[项目依赖类库说明](#项目依赖类库说明)
 * jdsf-demo-client 和 jdsf-demo-server 文件夹下执行 `go build` 后执行生成响应的可执行文件（如您使用 windows 或者 mac 而购买的云主机为 linux 操作系统请使用 `GOOS=linux GOARCH=amd64 go build` 进行编译）
